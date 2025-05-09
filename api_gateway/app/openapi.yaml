@@ -1,0 +1,560 @@
+openapi: 3.0.0
+info:
+  title: Café Docker API Gateway
+  description: API Gateway for the Café Docker microservices demo project
+  version: 1.0.0
+  contact:
+    name: Café Docker Team
+servers:
+  - url: http://localhost:8000
+    description: Local development server
+paths:
+  /:
+    get:
+      summary: API Gateway welcome message
+      description: Returns information about the API Gateway and available services
+      operationId: getRootInfo
+      responses:
+        '200':
+          description: Welcome message with service information
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Welcome to the Cafe API Gateway
+                  services:
+                    type: object
+                    properties:
+                      loyalty:
+                        type: string
+                        example: http://loyalty-service:8000
+                      menu:
+                        type: string
+                        example: http://menu-service:8000
+                      pos:
+                        type: string
+                        example: http://pos-service:8000
+
+  /menu:
+    get:
+      summary: Get full menu
+      description: Retrieves all menu items from the menu service
+      operationId: getMenu
+      responses:
+        '200':
+          description: List of menu items
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MenuItem'
+        '503':
+          description: Menu service unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  
+  /menu/{item_id}:
+    get:
+      summary: Get menu item
+      description: Retrieves a specific menu item by ID
+      operationId: getMenuItem
+      parameters:
+        - name: item_id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID of the menu item
+      responses:
+        '200':
+          description: Menu item details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MenuItem'
+        '404':
+          description: Menu item not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Menu service unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /customers:
+    get:
+      summary: Get all customers
+      description: Retrieves all customers from the loyalty service
+      operationId: getAllCustomers
+      responses:
+        '200':
+          description: List of customers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Customer'
+        '503':
+          description: Loyalty service unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      summary: Create customer
+      description: Create a new customer in the loyalty system
+      operationId: createCustomer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerCreate'
+      responses:
+        '200':
+          description: Customer created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+        '503':
+          description: Loyalty service unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /customers/{customer_id}:
+    get:
+      summary: Get customer details
+      description: Retrieve details for a specific customer
+      operationId: getCustomer
+      parameters:
+        - name: customer_id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID of the customer
+      responses:
+        '200':
+          description: Customer details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+        '404':
+          description: Customer not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Loyalty service unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /customers/{customer_id}/points:
+    get:
+      summary: Get customer loyalty points
+      description: Get loyalty points balance for a customer
+      operationId: getCustomerPoints
+      parameters:
+        - name: customer_id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID of the customer
+      responses:
+        '200':
+          description: Customer loyalty points
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoyaltyPoints'
+        '404':
+          description: Customer not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Loyalty service unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+                
+    post:
+      summary: Add or subtract loyalty points
+      description: Modify the loyalty points balance for a customer
+      operationId: addCustomerPoints
+      parameters:
+        - name: customer_id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID of the customer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                points:
+                  type: integer
+                  description: Points to add (positive) or subtract (negative)
+              required:
+                - points
+      responses:
+        '200':
+          description: Updated loyalty points
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoyaltyPoints'
+        '404':
+          description: Customer not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Loyalty service unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /transactions:
+    get:
+      summary: Get all transactions
+      description: Retrieves all transactions from the POS service
+      operationId: getAllTransactions
+      responses:
+        '200':
+          description: List of transactions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Transaction'
+        '503':
+          description: POS service unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      summary: Create transaction
+      description: Create a new transaction
+      operationId: createTransaction
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransactionCreate'
+      responses:
+        '200':
+          description: Transaction created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transaction'
+        '503':
+          description: POS service unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /transactions/{transaction_id}:
+    get:
+      summary: Get transaction details
+      description: Retrieve details for a specific transaction
+      operationId: getTransaction
+      parameters:
+        - name: transaction_id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID of the transaction
+      responses:
+        '200':
+          description: Transaction details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transaction'
+        '404':
+          description: Transaction not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: POS service unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /transactions/{transaction_id}/apply_loyalty:
+    post:
+      summary: Apply loyalty points
+      description: Apply loyalty points to discount a transaction
+      operationId: applyLoyaltyPoints
+      parameters:
+        - name: transaction_id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID of the transaction
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                points_to_use:
+                  type: integer
+                  description: Amount of loyalty points to apply to the transaction
+              required:
+                - points_to_use
+      responses:
+        '200':
+          description: Loyalty points applied successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoyaltyApplied'
+        '400':
+          description: Not enough points or invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Transaction not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: POS service unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  schemas:
+    Error:
+      type: object
+      properties:
+        detail:
+          type: string
+          description: Error message
+          example: Service unavailable
+      required:
+        - detail
+
+    MenuItem:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Menu item ID
+          example: 1
+        name:
+          type: string
+          description: Menu item name
+          example: Espresso
+        description:
+          type: string
+          description: Menu item description
+          example: Strong coffee brewed by forcing hot water under pressure through finely ground coffee beans
+        price:
+          type: number
+          format: float
+          description: Menu item price
+          example: 2.50
+      required:
+        - id
+        - name
+        - description
+        - price
+
+    CustomerCreate:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Customer name
+          example: John Doe
+        email:
+          type: string
+          description: Customer email address
+          example: john.doe@example.com
+      required:
+        - name
+        - email
+
+    Customer:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Customer ID
+          example: 1
+        name:
+          type: string
+          description: Customer name
+          example: John Doe
+        email:
+          type: string
+          description: Customer email address
+          example: john.doe@example.com
+      required:
+        - id
+        - name
+        - email
+
+    LoyaltyPoints:
+      type: object
+      properties:
+        customer_id:
+          type: integer
+          description: Customer ID
+          example: 1
+        points:
+          type: integer
+          description: Loyalty points balance
+          example: 120
+      required:
+        - customer_id
+        - points
+
+    TransactionItem:
+      type: object
+      properties:
+        item_id:
+          type: integer
+          description: Menu item ID
+          example: 1
+        quantity:
+          type: integer
+          description: Quantity of the item
+          example: 2
+      required:
+        - item_id
+        - quantity
+
+    TransactionCreate:
+      type: object
+      properties:
+        customer_id:
+          type: integer
+          description: Customer ID (optional for guest orders)
+          example: 1
+          nullable: true
+        items:
+          type: array
+          description: Items in the transaction
+          items:
+            $ref: '#/components/schemas/TransactionItem'
+      required:
+        - items
+
+    Transaction:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Transaction ID
+          example: 1
+        customer_id:
+          type: integer
+          nullable: true
+          description: Customer ID (null for guest orders)
+          example: 1
+        items:
+          type: array
+          description: Details of items purchased
+          items:
+            type: object
+            properties:
+              item_id:
+                type: integer
+                example: 1
+              name:
+                type: string
+                example: Espresso
+              quantity:
+                type: integer
+                example: 2
+              unit_price:
+                type: number
+                format: float
+                example: 2.50
+              total_price:
+                type: number
+                format: float
+                example: 5.00
+        total_price:
+          type: number
+          format: float
+          description: Total price of the transaction
+          example: 12.50
+      required:
+        - id
+        - items
+        - total_price
+
+    LoyaltyApplied:
+      type: object
+      properties:
+        transaction_id:
+          type: integer
+          description: Transaction ID
+          example: 1
+        points_used:
+          type: integer
+          description: Number of points used
+          example: 50
+        discount_applied:
+          type: number
+          format: float
+          description: Discount amount applied to the transaction
+          example: 5.00
+        new_total:
+          type: number
+          format: float
+          description: New total price after discount
+          example: 7.50
+      required:
+        - transaction_id
+        - points_used
+        - discount_applied
+        - new_total
