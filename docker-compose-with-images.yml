@@ -1,0 +1,79 @@
+services:
+  # Shared Database Service
+  cafe-db:
+    image: cafe-docker/cafe-db:latest
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - "5432:5432"
+    networks:
+      - cafe-network
+
+  # API Gateway Service (Node.js + Express)
+  api-gateway:
+    image: cafe-docker/api-gateway:latest
+    ports:
+      - "8000:8000"  # Expose the main API gateway port
+    environment:
+      - LOYALTY_SERVICE_URL=http://loyalty-service:8000
+      - MENU_SERVICE_URL=http://menu-service:8000
+      - POS_SERVICE_URL=http://pos-service:8000
+    depends_on:
+      - loyalty-service
+      - menu-service
+      - pos-service
+    networks:
+      - cafe-network
+    restart: on-failure
+    volumes:
+      - ./api_gateway/app:/app/app  # Mount app directory for easier development
+
+  # Loyalty Card Service
+  loyalty-service:
+    image: cafe-docker/loyalty-service:latest
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@cafe-db:5432/loyalty_db
+    depends_on:
+      cafe-db:
+        condition: service_healthy
+    networks:
+      - cafe-network
+    restart: on-failure
+
+  # Menu Service
+  menu-service:
+    image: cafe-docker/menu-service:latest
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@cafe-db:5432/menu_db
+    depends_on:
+      cafe-db:
+        condition: service_healthy
+    networks:
+      - cafe-network
+    restart: on-failure
+
+  # POS Integration Service
+  pos-service:
+    image: cafe-docker/pos-service:latest
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@cafe-db:5432/pos_db
+      - LOYALTY_SERVICE_URL=http://loyalty-service:8000
+      - MENU_SERVICE_URL=http://menu-service:8000
+    depends_on:
+      cafe-db:
+        condition: service_healthy
+      loyalty-service:
+        condition: service_started
+      menu-service:
+        condition: service_started
+    networks:
+      - cafe-network
+    restart: on-failure
+
+networks:
+  cafe-network:
+    driver: bridge
+
+volumes:
+  cafe-data:
