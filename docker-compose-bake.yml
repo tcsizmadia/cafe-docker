@@ -1,7 +1,7 @@
 services:
   # Shared Database Service
   cafe-db:
-    build: ./cafe_db
+    image: cafe-docker/cafe-db:latest
     ports:
       - "5432:5432"
     networks:
@@ -11,7 +11,7 @@ services:
 
   # API Gateway Service (Node.js + Express)
   api-gateway:
-    build: ./api_gateway
+    image: cafe-docker/api-gateway:latest
     ports:
       - "8000:8000"  # Expose the main API gateway port
     environment:
@@ -30,7 +30,7 @@ services:
 
   # Loyalty Card Service
   loyalty-service:
-    build: ./loyalty_service
+    image: cafe-docker/loyalty-service:latest
     environment:
       - DATABASE_URL=postgresql://postgres:postgres@cafe-db:5432/loyalty_db
     depends_on:
@@ -42,7 +42,7 @@ services:
 
   # Menu Service
   menu-service:
-    build: ./menu_service
+    image: cafe-docker/menu-service:latest
     environment:
       - DATABASE_URL=postgresql://postgres:postgres@cafe-db:5432/menu_db
     depends_on:
@@ -54,7 +54,7 @@ services:
 
   # POS Integration Service
   pos-service:
-    build: ./pos_service
+    image: cafe-docker/pos-service:latest
     environment:
       - DATABASE_URL=postgresql://postgres:postgres@cafe-db:5432/pos_db
       - LOYALTY_SERVICE_URL=http://loyalty-service:8000
