@@ -55,44 +55,90 @@ git clone <repository-url>
 cd cafe-docker
 ```
 
-### Start the Application
-To start all services, run the following command from the root directory:
+### Building and Running with Docker Bake
+
+This project now uses Docker Bake for a more efficient and configurable build process. A convenient wrapper script has been provided to simplify common operations.
+
+#### Using the Helper Script
+
+The `cafe-docker.sh` script provides an easy way to build and run the application:
+
 ```bash
+# Make the script executable (first time only)
+chmod +x ./cafe-docker.sh
+
+# View available commands
+./cafe-docker.sh help
+
+# Build all services (defaults to YAML format)
+./cafe-docker.sh build
+
+# Choose between YAML or HCL format
+./cafe-docker.sh build -f yaml    # Use YAML format (default)
+./cafe-docker.sh build -f hcl     # Use HCL format
+
+# Build only specific service group
+./cafe-docker.sh build -t api    # API Gateway only
+./cafe-docker.sh build -t backend # All backend services
+
+# Build with a specific tag
+./cafe-docker.sh build --tag v1.0
+
+# Build and start all services
+./cafe-docker.sh up
+
+# Stop all services
+./cafe-docker.sh down
+
+# View logs
+./cafe-docker.sh logs
+```
+
+#### Manual Docker Bake Commands
+
+If you prefer to use Docker Bake directly:
+
+```bash
+# Build all services using YAML format (preferred)
+docker buildx bake -f docker-bake.yaml
+
+# Build all services using HCL format
+docker buildx bake -f docker-bake.hcl
+
+# Build specific target group
+docker buildx bake -f docker-bake.yaml api
+docker buildx bake -f docker-bake.yaml backend
+
+# Build with custom tag
+docker buildx bake -f docker-bake.yaml --set "*.args.TAG=v1.0"
+
+# Build and load images to local Docker
+docker buildx bake -f docker-bake.yaml --load
+```
+
+### Legacy Docker Compose Commands
+
+You can still use Docker Compose directly if preferred:
+
+```bash
+# Start all services
 docker-compose up
-```
 
-This will:
-1. Build all service images if they don't already exist
-2. Create containers for each service and their databases
-3. Set up the shared network
-4. Start all services and make their APIs accessible
-
-To run in detached mode (in the background):
-```bash
+# Run in detached mode
 docker-compose up -d
-```
 
-### View Service Logs
-To see the logs from all services:
-```bash
+# View logs from all services
 docker-compose logs
-```
 
-For logs from a specific service:
-```bash
+# View logs from a specific service
 docker-compose logs loyalty-service
 docker-compose logs menu-service
 docker-compose logs pos-service
-```
 
-### Stop the Application
-To stop all running containers:
-```bash
+# Stop the application
 docker-compose down
-```
 
-To stop and remove all containers, networks, and volumes:
-```bash
+# Stop and remove volumes
 docker-compose down -v
 ```
 
