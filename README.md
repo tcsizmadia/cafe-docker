@@ -1,14 +1,24 @@
 # Café Docker - Microservices Demo Project
 
-This is a demonstration project designed to help interns learn how Docker Compose orchestrates containers in a microservices architecture. The project simulates a café management system with three interconnected services.
+This is a demonstration project that explores different approaches to containerizing and orchestrating microservices. The project simulates a café management system with multiple interconnected services, showcasing various Docker and container orchestration techniques.
 
 ## Project Overview
 
-This project demonstrates how to build and connect multiple microservices using Docker and Docker Compose. Each service runs in its own container and communicates with others through a shared network.
+This project demonstrates different approaches to building and deploying microservices using containers. Each approach is contained in its own folder to illustrate various containerization strategies and orchestration methods.
+
+### Current Approaches
+
+- **`1-build-with-compose/`** - Basic Docker Compose approach with multi-container orchestration
+
+Each approach demonstrates the same café management system but uses different containerization and deployment strategies.
+
+## Approach 1: Build with Docker Compose
+
+The `1-build-with-compose/` folder contains the basic Docker Compose approach for orchestrating microservices.
 
 ### Services Architecture
 
-The application consists of four main services:
+All approaches implement the same microservices architecture with four main services:
 
 1. **API Gateway Service** (Port 8000)
    - Central entry point for all client requests
@@ -49,15 +59,24 @@ docker-compose --version
 
 ## Getting Started
 
+### Choose an Approach
+
+Navigate to the approach you want to explore:
+
+```bash
+cd 1-build-with-compose
+```
+
 ### Clone the Repository
 ```bash
 git clone <repository-url>
 cd cafe-docker
 ```
 
-### Start the Application
-To start all services, run the following command from the root directory:
+### Start the Application (Docker Compose Approach)
+From the `1-build-with-compose/` directory, run:
 ```bash
+cd 1-build-with-compose
 docker-compose up
 ```
 
@@ -184,9 +203,11 @@ curl -X POST http://localhost:8003/transactions/1/apply_loyalty \
   -d '{"points_to_use": 10}'
 ```
 
-## Docker Compose Concepts Demonstrated
+## Docker Concepts Demonstrated
 
-This project showcases several important Docker Compose concepts:
+This project showcases several important containerization concepts across different approaches:
+
+### Docker Compose Approach (`1-build-with-compose/`)
 
 1. **Multi-container applications**: Running multiple services together
 2. **Service discovery**: Services can call each other by service name
@@ -200,32 +221,31 @@ This project showcases several important Docker Compose concepts:
 
 ```
 cafe-docker/
-├── docker-compose.yml        # Main orchestration file
 ├── README.md                 # Project documentation
-│
-├── api_gateway/              # API Gateway Service
-│   ├── Dockerfile            # Container configuration
-│   ├── requirements.txt      # Python dependencies
-│   └── app/
-│       └── main.py           # FastAPI application code
-│
-├── loyalty_service/          # Loyalty Card Service
-│   ├── Dockerfile            # Container configuration
-│   ├── requirements.txt      # Python dependencies
-│   └── app/
-│       └── main.py           # FastAPI application code
-│
-├── menu_service/             # Menu Service
-│   ├── Dockerfile
-│   ├── requirements.txt
-│   └── app/
-│       └── main.py
-│
-└── pos_service/              # POS Integration Service
-    ├── Dockerfile
-    ├── requirements.txt
-    └── app/
-        └── main.py
+├── 1-build-with-compose/     # Docker Compose approach
+│   ├── docker-compose.yml   # Main orchestration file
+│   ├── api_gateway/          # API Gateway Service
+│   │   ├── Dockerfile        # Container configuration
+│   │   ├── package.json      # Node.js dependencies
+│   │   └── app/
+│   │       ├── index.js      # Express.js application code
+│   │       └── openapi.yaml  # API specification
+│   ├── loyalty_service/      # Loyalty Card Service
+│   │   ├── Dockerfile        # Container configuration
+│   │   ├── requirements.txt  # Python dependencies
+│   │   └── app/
+│   │       └── main.py       # FastAPI application code
+│   ├── menu_service/         # Menu Service
+│   │   ├── Dockerfile
+│   │   ├── requirements.txt
+│   │   └── app/
+│   │       └── main.py
+│   └── pos_service/          # POS Integration Service
+│       ├── Dockerfile
+│       ├── requirements.txt
+│       └── app/
+│           └── main.py
+└── [future approaches will be added here]
 ```
 
 ## Architecture Diagram
@@ -291,12 +311,17 @@ All databases share the same PostgreSQL instance but are logically separated, al
 
 Through this project, you should gain an understanding of:
 
+- Different approaches to containerizing microservices
 - How containers isolate application code and dependencies
-- How Docker Compose manages multi-container applications
+- Various orchestration strategies and their trade-offs
 - How microservices communicate with each other
 - Basic patterns for service discovery in containerized environments
 - Database persistence with Docker volumes
 - Environment-based configuration in Docker
+
+## Next Steps
+
+This project will be expanded with additional approaches to demonstrate various containerization and orchestration strategies. Each approach will showcase different tools, patterns, and best practices for deploying microservices in production environments.
 
 ## Troubleshooting
 
@@ -312,17 +337,18 @@ Through this project, you should gain an understanding of:
 
 3. **Port conflicts**
    - Check if ports are already in use: `lsof -i :<port>` (Unix/Mac) or `netstat -ano | findstr :<port>` (Windows)
-   - Change the mapped ports in docker-compose.yml
+   - Change the mapped ports in the respective docker-compose.yml file
 
 ## Extensions and Challenges
 
-Once you're comfortable with the basic setup, try these extensions:
+Once you're comfortable with the current approach, try these extensions:
 
 1. Add a web frontend service that connects to the API services
 2. Implement authentication and authorization
 3. Add automated tests for the services
 4. Set up continuous integration/continuous deployment
 5. Implement message queuing between services using RabbitMQ or Kafka
+6. Compare performance and complexity between different approaches
 
 ## Resources for Learning More
 
