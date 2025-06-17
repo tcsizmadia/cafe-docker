@@ -9,11 +9,11 @@
 ###############################################
 
 ### Check if Loyalty Service is running
-GET http://localhost:8001/
+GET http://localhost:8000/
 Accept: application/json
 
 ### Create a new customer - John Doe
-POST http://localhost:8001/customers
+POST http://localhost:8000/customers
 Content-Type: application/json
 
 {
