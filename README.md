@@ -9,12 +9,17 @@ This project demonstrates different approaches to building and deploying microse
 ### Current Approaches
 
 - **`1-build-with-compose/`** - Basic Docker Compose approach with multi-container orchestration
+- **`2-build-with-bash-scripts/`** - Docker image building with bash scripts, orchestration with Docker Compose
 
 Each approach demonstrates the same café management system but uses different containerization and deployment strategies.
 
 ## Approach 1: Build with Docker Compose
 
 The `1-build-with-compose/` folder contains the basic Docker Compose approach for orchestrating microservices.
+
+## Approach 2: Build with Bash Scripts
+
+The `2-build-with-bash-scripts/` folder demonstrates building Docker images using bash scripts while still using Docker Compose for orchestration. This approach separates the build process from the orchestration, providing more control over the image building pipeline.
 
 ### Services Architecture
 
@@ -64,7 +69,11 @@ docker-compose --version
 Navigate to the approach you want to explore:
 
 ```bash
+# Docker Compose approach
 cd 1-build-with-compose
+
+# Bash scripts approach
+cd 2-build-with-bash-scripts
 ```
 
 ### Clone the Repository
@@ -77,6 +86,16 @@ cd cafe-docker
 From the `1-build-with-compose/` directory, run:
 ```bash
 cd 1-build-with-compose
+docker-compose up
+```
+
+### Start the Application (Bash Scripts Approach)
+From the `2-build-with-bash-scripts/` directory, run:
+```bash
+cd 2-build-with-bash-scripts
+# Build images using bash scripts
+./build.sh
+# Start services with Docker Compose
 docker-compose up
 ```
 
@@ -217,6 +236,15 @@ This project showcases several important containerization concepts across differ
 6. **Dependency management**: Services wait for dependencies before starting
 7. **Port mapping**: Exposing internal service ports to the host machine
 
+### Bash Scripts Approach (`2-build-with-bash-scripts/`)
+
+1. **Scripted image building**: Custom bash scripts for building Docker images
+2. **Build pipeline control**: Fine-grained control over the image build process
+3. **Compose orchestration**: Still uses Docker Compose for service orchestration
+4. **Separation of concerns**: Build process separated from deployment process
+5. **Custom build logic**: Ability to add custom steps like testing, optimization, or multi-stage builds
+6. **Build automation**: Repeatable and version-controlled build processes
+
 ## Project Structure
 
 ```
@@ -224,6 +252,30 @@ cafe-docker/
 ├── README.md                 # Project documentation
 ├── 1-build-with-compose/     # Docker Compose approach
 │   ├── docker-compose.yml   # Main orchestration file
+│   ├── api_gateway/          # API Gateway Service
+│   │   ├── Dockerfile        # Container configuration
+│   │   ├── package.json      # Node.js dependencies
+│   │   └── app/
+│   │       ├── index.js      # Express.js application code
+│   │       └── openapi.yaml  # API specification
+│   ├── loyalty_service/      # Loyalty Card Service
+│   │   ├── Dockerfile        # Container configuration
+│   │   ├── requirements.txt  # Python dependencies
+│   │   └── app/
+│   │       └── main.py       # FastAPI application code
+│   ├── menu_service/         # Menu Service
+│   │   ├── Dockerfile
+│   │   ├── requirements.txt
+│   │   └── app/
+│   │       └── main.py
+│   └── pos_service/          # POS Integration Service
+│       ├── Dockerfile
+│       ├── requirements.txt
+│       └── app/
+│           └── main.py
+├── 2-build-with-bash-scripts/ # Bash Scripts approach
+│   ├── build.sh              # Image building script
+│   ├── docker-compose.yml   # Orchestration file
 │   ├── api_gateway/          # API Gateway Service
 │   │   ├── Dockerfile        # Container configuration
 │   │   ├── package.json      # Node.js dependencies
