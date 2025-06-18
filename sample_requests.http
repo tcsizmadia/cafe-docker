@@ -1,28 +1,37 @@
 ###############################################
 # Café Docker Microservices - Sample API Requests
+# API Gateway Service (Public Interface)
 ###############################################
 # Use with Visual Studio Code REST Client extension
-# Run the requests in sequence to test the full application flow
+# All requests now go through the API Gateway at port 8000
 
 ###############################################
-# LOYALTY CARD SERVICE
+# API GATEWAY HEALTH CHECK
 ###############################################
 
-### Check if Loyalty Service is running
-GET http://localhost:8001/
+### Check if API Gateway is running (Root endpoint)
+GET http://localhost:8000/
+Accept: application/json
+
+###############################################
+# CUSTOMER MANAGEMENT (Loyalty Service via API Gateway)
+###############################################
+
+### Get all customers
+GET http://localhost:8000/customers
 Accept: application/json
 
 ### Create a new customer - John Doe
-POST http://localhost:8001/customers
+POST http://localhost:8000/customers
 Content-Type: application/json
 
 {
   "name": "John Doe",
   "email": "john.doe@example.com"
 }
-
+  
 ### Create another customer - Jane Smith
-POST http://localhost:8001/customers
+POST http://localhost:8000/customers
 Content-Type: application/json
 
 {
@@ -31,15 +40,15 @@ Content-Type: application/json
 }
 
 ### Get customer by ID (replace 1 with the actual customer_id)
-GET http://localhost:8001/customers/1
+GET http://localhost:8000/customers/1
 Accept: application/json
 
 ### Get loyalty points for customer (replace 1 with the actual customer_id)
-GET http://localhost:8001/customers/1/points
+GET http://localhost:8000/customers/1/points
 Accept: application/json
 
 ### Add loyalty points to customer (replace 1 with the actual customer_id)
-POST http://localhost:8001/customers/1/points
+POST http://localhost:8000/customers/1/points
 Content-Type: application/json
 
 {
@@ -47,31 +56,27 @@ Content-Type: application/json
 }
 
 ###############################################
-# MENU SERVICE
+# MENU SERVICE (via API Gateway)
 ###############################################
 
-### Check if Menu Service is running
-GET http://localhost:8002/
-Accept: application/json
-
 ### Get all menu items
-GET http://localhost:8002/menu
+GET http://localhost:8000/menu
 Accept: application/json
 
 ### Get specific menu item (replace 1 with the actual item_id)
-GET http://localhost:8002/menu/1
+GET http://localhost:8000/menu/1
 Accept: application/json
 
 ###############################################
-# POS INTEGRATION SERVICE
+# TRANSACTION MANAGEMENT (POS Service via API Gateway)
 ###############################################
 
-### Check if POS Service is running
-GET http://localhost:8003/
+### Get all transactions
+GET http://localhost:8000/transactions
 Accept: application/json
 
 ### Create a new transaction with customer (replace customer_id and item_ids with actual values)
-POST http://localhost:8003/transactions
+POST http://localhost:8000/transactions
 Content-Type: application/json
 
 {
@@ -89,7 +94,7 @@ Content-Type: application/json
 }
 
 ### Create a transaction without customer (guest order)
-POST http://localhost:8003/transactions
+POST http://localhost:8000/transactions
 Content-Type: application/json
 
 {
@@ -102,11 +107,11 @@ Content-Type: application/json
 }
 
 ### Get transaction by ID (replace 1 with the actual transaction_id)
-GET http://localhost:8003/transactions/1
+GET http://localhost:8000/transactions/1
 Accept: application/json
 
 ### Apply loyalty points to a transaction (replace 1 with the actual transaction_id)
-POST http://localhost:8003/transactions/1/apply_loyalty
+POST http://localhost:8000/transactions/1/apply_loyalty
 Content-Type: application/json
 
 {
@@ -114,11 +119,11 @@ Content-Type: application/json
 }
 
 ###############################################
-# COMPLETE WORKFLOW EXAMPLE
+# COMPLETE WORKFLOW EXAMPLE (via API Gateway)
 ###############################################
 
 ### 1. Create a new customer
-POST http://localhost:8001/customers
+POST http://localhost:8000/customers
 Content-Type: application/json
 
 {
@@ -127,11 +132,11 @@ Content-Type: application/json
 }
 
 ### 2. Check available menu items
-GET http://localhost:8002/menu
+GET http://localhost:8000/menu
 Accept: application/json
 
 ### 3. Create a new transaction for the customer (use the customer_id from step 1)
-POST http://localhost:8003/transactions
+POST http://localhost:8000/transactions
 Content-Type: application/json
 
 {
@@ -149,11 +154,11 @@ Content-Type: application/json
 }
 
 ### 4. Check earned loyalty points (use the customer_id from step 1)
-GET http://localhost:8001/customers/3/points
+GET http://localhost:8000/customers/3/points
 Accept: application/json
 
 ### 5. Apply loyalty points to the transaction (use the transaction_id from step 3)
-POST http://localhost:8003/transactions/3/apply_loyalty
+POST http://localhost:8000/transactions/3/apply_loyalty
 Content-Type: application/json
 
 {
@@ -161,5 +166,71 @@ Content-Type: application/json
 }
 
 ### 6. Verify updated transaction (use the transaction_id from step 3)
-GET http://localhost:8003/transactions/3
+GET http://localhost:8000/transactions/3
 Accept: application/json
+
+###############################################
+# SMOKE TESTS - All API Gateway Endpoints
+###############################################
+
+### Test 1: API Gateway welcome message
+GET http://localhost:8000/
+Accept: application/json
+
+### Test 2: Get all customers
+GET http://localhost:8000/customers
+Accept: application/json
+
+### Test 3: Get all menu items
+GET http://localhost:8000/menu
+Accept: application/json
+
+### Test 4: Get all transactions
+GET http://localhost:8000/transactions
+Accept: application/json
+
+### Test 5: Create a test customer for smoke testing
+POST http://localhost:8000/customers
+Content-Type: application/json
+
+{
+  "name": "Smoke Test User",
+  "email": "smoketest@example.com"
+}
+
+### Test 6: Create a test transaction (guest order)
+POST http://localhost:8000/transactions
+Content-Type: application/json
+
+{
+  "items": [
+    {
+      "item_id": 1,
+      "quantity": 1
+    }
+  ]
+}
+
+###############################################
+# ERROR HANDLING TESTS
+###############################################
+
+### Test non-existent customer
+GET http://localhost:8000/customers/999
+Accept: application/json
+
+### Test non-existent menu item
+GET http://localhost:8000/menu/999
+Accept: application/json
+
+### Test non-existent transaction
+GET http://localhost:8000/transactions/999
+Accept: application/json
+
+### Test invalid loyalty points application
+POST http://localhost:8000/transactions/999/apply_loyalty
+Content-Type: application/json
+
+{
+  "points_to_use": 1000
+}

@@ -1,6 +1,6 @@
 from fastapi import FastAPI, HTTPException, Depends
 from pydantic import BaseModel
-from sqlalchemy import create_engine, Column, Integer, String, Float, JSON
+from sqlalchemy import create_engine, Column, Integer, String, Float, JSON, text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
 import os
@@ -64,7 +64,8 @@ class LoyaltyApplyRequest(BaseModel):
 def get_db_connection():
     db = SessionLocal()
     try:
-        db.execute("SELECT 1")
+        # Test the connection
+        db.execute(text("SELECT 1")).fetchone()
         return db
     except Exception as e:
         db.close()

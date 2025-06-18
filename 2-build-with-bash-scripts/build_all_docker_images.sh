@@ -46,4 +46,4 @@ fi
 cd ..
 
 echo "====== All services built successfully ======"
-echo "Use docker-compose-with-images.yml to run services with pre-built images"
+echo "Use docker compose up to run services with pre-built images"
