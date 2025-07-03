@@ -26,8 +26,6 @@ services:
     networks:
       - cafe-network
     restart: on-failure
-    volumes:
-      - ./api_gateway/app:/app/app  # Mount app directory for easier development
 
   # Loyalty Card Service
   loyalty-service:

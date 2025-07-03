@@ -14,7 +14,7 @@ echo "Building ${SERVICE_NAME} Docker image..."
 echo "Image name: ${IMAGE_NAME}:${IMAGE_TAG}"
 
 # Build the Docker image
-docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .
+docker build -t ${IMAGE_NAME}:${IMAGE_TAG} ../../api_gateway
 
 # Check if build was successful
 if [ $? -eq 0 ]; then
