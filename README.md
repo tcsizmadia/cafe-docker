@@ -97,40 +97,22 @@ cd 2-build-with-bash-scripts
 ./build.sh
 # Start services with Docker Compose
 docker-compose up
-```
 
-This will:
-1. Build all service images if they don't already exist
-2. Create containers for each service and their databases
-3. Set up the shared network
-4. Start all services and make their APIs accessible
-
-To run in detached mode (in the background):
-```bash
+# Run in detached mode
 docker-compose up -d
-```
 
-### View Service Logs
-To see the logs from all services:
-```bash
+# View logs from all services
 docker-compose logs
-```
 
-For logs from a specific service:
-```bash
+# View logs from a specific service
 docker-compose logs loyalty-service
 docker-compose logs menu-service
 docker-compose logs pos-service
-```
 
-### Stop the Application
-To stop all running containers:
-```bash
+# Stop the application
 docker-compose down
-```
 
-To stop and remove all containers, networks, and volumes:
-```bash
+# Stop and remove volumes
 docker-compose down -v
 ```
 
