@@ -2,12 +2,13 @@ services:
   # Shared Database Service
   cafe-db:
     image: cafe-docker/cafe-db:latest
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
     ports:
       - "5432:5432"
     networks:
       - cafe-network
-    volumes:
-      - cafe-data:/var/lib/postgresql/data
 
   # API Gateway Service (Node.js + Express)
   api-gateway:
@@ -26,7 +27,7 @@ services:
       - cafe-network
     restart: on-failure
     volumes:
-      - ./api_gateway/app:/app/app  # Mount app directory for easier development
+      - ../api_gateway/app:/app/app  # Mount app directory for easier development
 
   # Loyalty Card Service
   loyalty-service:
